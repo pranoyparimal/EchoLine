@@ -1,0 +1,16 @@
+{
+    "name": "EchoLine.Gameplay",
+    "references": [
+        "EchoLine.Core",
+        "EchoLine.Utilities"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": false,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}
