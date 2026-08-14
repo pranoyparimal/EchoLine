@@ -352,7 +352,6 @@ GameObject:
   - component: {fileID: 726222055}
   - component: {fileID: 726222053}
   - component: {fileID: 726222057}
-  - component: {fileID: 726222058}
   m_Layer: 6
   m_Name: Circle
   m_TagString: Untagged
@@ -446,7 +445,7 @@ SpriteRenderer:
   m_SortingOrder: 0
   m_MaskInteraction: 0
   m_Sprite: {fileID: -2413806693520163455, guid: a86470a33a6bf42c4b3595704624658b, type: 3}
-  m_Color: {r: 0.9433962, g: 0.8798524, b: 0.057849795, a: 1}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 0
@@ -464,7 +463,7 @@ Transform:
   m_GameObject: {fileID: 726222052}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalPosition: {x: 0, y: 4.25, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -483,10 +482,10 @@ Rigidbody2D:
   m_UseFullKinematicContacts: 0
   m_UseAutoMass: 0
   m_Mass: 1
-  m_LinearDamping: 0
-  m_AngularDamping: 0.05
-  m_GravityScale: 1
-  m_Material: {fileID: 0}
+  m_LinearDamping: 0.3
+  m_AngularDamping: 0.5
+  m_GravityScale: 1.2
+  m_Material: {fileID: 6200000, guid: 2d4cda0a1657e7144b3df356bcc96f77, type: 2}
   m_IncludeLayers:
     serializedVersion: 2
     m_Bits: 0
@@ -497,18 +496,6 @@ Rigidbody2D:
   m_SleepingMode: 1
   m_CollisionDetection: 0
   m_Constraints: 0
---- !u!114 &726222058
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 726222052}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 985ba8f438e05be4285ba511228c4283, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::Ball
 --- !u!1 &1262870237
 GameObject:
   m_ObjectHideFlags: 0
@@ -570,7 +557,6 @@ GameObject:
   - component: {fileID: 1916291889}
   - component: {fileID: 1916291888}
   - component: {fileID: 1916291887}
-  - component: {fileID: 1916291891}
   m_Layer: 8
   m_Name: Square
   m_TagString: Untagged
@@ -640,7 +626,7 @@ Rigidbody2D:
   m_LinearDamping: 0
   m_AngularDamping: 0.05
   m_GravityScale: 0
-  m_Material: {fileID: 0}
+  m_Material: {fileID: 6200000, guid: 2d4cda0a1657e7144b3df356bcc96f77, type: 2}
   m_IncludeLayers:
     serializedVersion: 2
     m_Bits: 0
@@ -701,7 +687,7 @@ SpriteRenderer:
   m_SortingOrder: 0
   m_MaskInteraction: 0
   m_Sprite: {fileID: 7482667652216324306, guid: 311925a002f4447b3a28927169b83ea6, type: 3}
-  m_Color: {r: 1, g: 0.3066038, b: 0.3066038, a: 1}
+  m_Color: {r: 0.2784314, g: 0.83137256, b: 0.07450981, a: 1}
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 0
@@ -719,24 +705,12 @@ Transform:
   m_GameObject: {fileID: 1916291886}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: -1.731, z: 0}
+  m_LocalPosition: {x: 0, y: -4.13, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &1916291891
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1916291886}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: cde71ff1bc7ee43439d84f8d267cc298, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::Square
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0
