@@ -1,7 +1,9 @@
 {
     "name": "EchoLine.Core",
+    "rootNamespace": "",
     "references": [
-        "EchoLine.Utilities"
+        "EchoLine.Utilities",
+        "Unity.InputSystem"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],
