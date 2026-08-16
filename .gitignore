@@ -25,6 +25,7 @@
 # User Settings — machine-specific editor preferences and layouts
 /[Uu]ser[Ss]ettings/
 
+/.utmp/
 
 # ------------------------------------------
 # UNITY EDITOR ARTIFACTS
