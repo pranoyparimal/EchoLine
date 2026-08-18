@@ -68,6 +68,11 @@ namespace EchoLine.Core
         [Range(0.1f, 1f)]
         [SerializeField] private float ballRadius = 0.25f;
 
+        [Space(5)]
+        [Tooltip("Maximum speed the ball can travel. Clamped each FixedUpdate to prevent tunnelling.")]
+        [Range(5f, 30f)]
+        public float maxBallSpeed = 18f;
+
         // ─────────────────────────────────────────────────────────────
         //  Sonar — Timing
         // ─────────────────────────────────────────────────────────────
@@ -108,6 +113,12 @@ namespace EchoLine.Core
 
         /// <summary>Rigidbody2D.angularDamping for the ball.</summary>
         public float AngularDrag => ballAngularDrag;
+
+        /// <summary> CircleCollider2D.Radius for the ball </summary>
+        public float BallRadius => ballRadius;
+
+        /// <summary> </summary>
+        public float MaxBallSpeed => maxBallSpeed;
 
         // ─────────────────────────────────────────────────────────────
         //  Validation
