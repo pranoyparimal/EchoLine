@@ -5,13 +5,14 @@
 //
 //  Responsibilities (SRP):
 //    1. Apply all physics configuration values from GameConfig to the
-//       Rigidbody2D and PhysicsMaterial2D once on Awake and again on every reset.
+//       Rigidbody2D, CircleCollider2D, and PhysicsMaterial2D once on Awake
+//       and again on every reset.
 //    2. Hold the ball frozen at its start position until Launch() is called.
-//    3. Execute the launch (unfreeze constraints, let gravity take over).
+//    3. Execute the launch (unfreeze constraints, notify BallPhysicsResponder).
 //    4. Reset the ball to its start position and frozen state when requested.
 //
-//  This is the ONLY script that writes to the Rigidbody2D or PhysicsMaterial2D.
-//  No other ball script should touch physics values directly.
+//  This is the ONLY script that writes to the Rigidbody2D, CircleCollider2D,
+//  or PhysicsMaterial2D. No other ball script should touch physics values directly.
 //
 //  External callers:
 //    • LevelManager   — calls Launch() when the player taps the Drop button.
@@ -40,6 +41,9 @@ namespace EchoLine.Gameplay
         [Tooltip("The Rigidbody2D on the Ball GameObject. Assign in Inspector.")]
         [SerializeField] private Rigidbody2D _rb;
 
+        [Tooltip("The CircleCollider2D on the Ball GameObject. Assign in Inspector.")]
+        [SerializeField] private CircleCollider2D _collider;
+
         [Tooltip(
             "The PhysicsMaterial2D assigned to the Ball's CircleCollider2D. " +
             "Must be a dedicated asset used ONLY by the ball — not shared with " +
@@ -50,6 +54,14 @@ namespace EchoLine.Gameplay
 
         [Tooltip("ScriptableObject containing all physics tuning values.")]
         [SerializeField] private GameConfig _config;
+
+        [Header("Sibling Components")]
+
+        [Tooltip(
+            "BallPhysicsResponder on the same GameObject. " +
+            "BallLauncher drives its _isLive flag so collision routing only " +
+            "activates once the ball is actually in play.")]
+        [SerializeField] private BallPhysicsResponder _physicsResponder;
 
         [Header("Launch State")]
 
@@ -92,7 +104,7 @@ namespace EchoLine.Gameplay
                 _startPosition = transform.position;
 
             ApplyPhysicsConfig();
-            FreezeRigidbody();
+            //FreezeRigidbody();
         }
 
 #if UNITY_EDITOR
@@ -125,6 +137,11 @@ namespace EchoLine.Gameplay
             }
 
             IsLaunched = true;
+
+            // Enable collision routing before unfreezing so no contacts are
+            // missed in the first physics frame after constraints are released.
+            _physicsResponder.SetLive(true);
+
             UnfreezeRigidbody();
 
             Debug.Log("[BallLauncher] Ball launched.");
@@ -139,6 +156,10 @@ namespace EchoLine.Gameplay
         public void ResetBall()
         {
             IsLaunched = false;
+
+            // Disable collision routing before clearing velocity so no stale
+            // contacts fire during the one frame the ball spends at reset position.
+            _physicsResponder.SetLive(false);
 
             // Stop all motion before repositioning to avoid one-frame collisions
             // at the reset position caused by residual velocity.
@@ -160,16 +181,16 @@ namespace EchoLine.Gameplay
         // ─────────────────────────────────────────────────────────────────────
 
         /// <summary>
-        /// Writes all GameConfig physics values to the Rigidbody2D and
-        /// PhysicsMaterial2D. This is the single authoritative point of physics
+        /// Writes all GameConfig physics values to the Rigidbody2D, CircleCollider2D,
+        /// and PhysicsMaterial2D. This is the single authoritative point of physics
         /// initialisation for the ball — no other script touches these values.
         /// </summary>
         private void ApplyPhysicsConfig()
         {
             // ── Rigidbody2D ──────────────────────────────────────────────────
-            _rb.gravityScale      = _config.GravityScale;      // 1.2
-            _rb.linearDamping     = _config.BallDrag;     // 0.3
-            _rb.angularDamping    = _config.AngularDrag;    // 0.5
+            _rb.gravityScale   = _config.GravityScale;   // 1.2
+            _rb.linearDamping  = _config.BallDrag;       // 0.3
+            _rb.angularDamping = _config.AngularDrag;    // 0.5
 
             // Continuous collision detection — prevents tunnelling through thin
             // player-drawn lines at high velocity.
@@ -179,7 +200,12 @@ namespace EchoLine.Gameplay
             // Physics2D.gravity is scene-global. Setting it here is appropriate
             // because Echo Line has one physics context and one gravity value.
             // If future levels need variable gravity, move this to LevelManager.
-            Physics2D.gravity = _config.Gravity;               // (0, -18)
+            Physics2D.gravity = _config.Gravity;         // (0, -18)
+
+            // ── CircleCollider2D ─────────────────────────────────────────────
+            // Radius must match the sprite's visual radius. Owned here so a
+            // ResetBall() during play mode picks up any live Inspector changes.
+            _collider.radius = _config.BallRadius;       // 0.25
 
             // ── PhysicsMaterial2D ────────────────────────────────────────────
             // This material must be assigned exclusively to the ball's collider.
@@ -225,11 +251,17 @@ namespace EchoLine.Gameplay
             if (_rb == null)
                 Debug.LogError("[BallLauncher] Rigidbody2D is not assigned.", this);
 
+            if (_collider == null)
+                Debug.LogError("[BallLauncher] CircleCollider2D is not assigned.", this);
+
             if (_ballPhysicsMaterial == null)
                 Debug.LogError("[BallLauncher] PhysicsMaterial2D is not assigned.", this);
 
             if (_config == null)
                 Debug.LogError("[BallLauncher] GameConfig ScriptableObject is not assigned.", this);
+
+            if (_physicsResponder == null)
+                Debug.LogError("[BallLauncher] BallPhysicsResponder is not assigned.", this);
         }
     }
 }

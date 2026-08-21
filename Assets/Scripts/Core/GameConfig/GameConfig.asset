@@ -12,12 +12,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: bfeb483c990fb30489ba8ab8683e73fd, type: 3}
   m_Name: GameConfig
   m_EditorClassIdentifier: EchoLine.Core::EchoLine.Core.GameConfig
-  gravity: {x: 0, y: -18}
+  gravity: {x: 0, y: -20}
   gravityScale: 1.2
   ballBounciness: 0.35
   ballFriction: 0.2
   ballDrag: 0.3
   ballAngularDrag: 0.5
-  ballRadius: 0.25
+  ballRadius: 0.5
+  maxBallSpeed: 18
   sonarFlashDuration: 0.5
   sonarExpandTime: 2

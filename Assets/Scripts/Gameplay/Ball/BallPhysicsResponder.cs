@@ -1,34 +1,36 @@
+// ─────────────────────────────────────────────────────────────────────────────
+//  BallPhysicsResponder.cs
+//  Assembly : EchoLine.Gameplay
+//  Location : Assets/Scripts/Gameplay/BallPhysicsResponder.cs
+//
+//  Responsibilities (SRP):
+//    1. Enforce a maximum ball speed each FixedUpdate to prevent energy
+//       accumulation across successive bounces causing tunnelling.
+//    2. On collision, delegate to IBallContactHandler (hazards, basket) or
+//       raise the appropriate GameEvent directly (bounce off Wall/PlayerLine).
+//    3. Gate all collision responses behind _isLive — set exclusively by
+//       BallLauncher via SetLive() to ensure events only fire while in play.
+//
+//  DOES NOT
+//  ─────────
+//  • Write to Rigidbody2D, CircleCollider2D, or PhysicsMaterial2D — that
+//    authority belongs entirely to BallLauncher (see BallLauncher.cs).
+//  • Know anything about VFX, trails, sonar pulses, or UI.
+//  • Hold direct references to sibling ball scripts.
+//
+//  SETUP
+//  ─────
+//  Attach to the Ball prefab root alongside BallLauncher, BallTrailRenderer,
+//  BallSonarEmitter, and BallDeathHandler.
+//  Wire all [SerializeField] references in the Inspector.
+//  Assign this component to BallLauncher._physicsResponder in the Inspector.
+// ─────────────────────────────────────────────────────────────────────────────
+
 using UnityEngine;
 using EchoLine.Core;
 
 namespace EchoLine.Gameplay
 {
-    /// <summary>
-    /// Detects and routes all physics-layer collision events for the ball.
-    ///
-    /// RESPONSIBILITIES
-    /// ─────────────────
-    /// • Apply GameConfig values to Rigidbody2D / PhysicsMaterial2D at startup.
-    /// • Enforce a maximum ball speed each FixedUpdate to prevent tunnelling
-    ///   caused by energy accumulation across multiple bounces.
-    /// • On collision, delegate to IBallContactHandler (hazards, basket) or
-    ///   raise the appropriate GameEvent directly (bounce off Wall/PlayerLine).
-    /// • Gate all collision responses behind _isLive — events before launch
-    ///   are silently ignored.
-    ///
-    /// DOES NOT
-    /// ─────────
-    /// • Touch Rigidbody2D after Awake (write authority belongs to BallLauncher
-    ///   while the ball is live — see BallLauncher.cs).
-    /// • Know anything about VFX, trails, sonar pulses, or UI.
-    /// • Hold direct references to sibling ball scripts.
-    ///
-    /// SETUP
-    /// ─────
-    /// Attach to the Ball prefab root alongside BallLauncher, BallTrailRenderer,
-    /// BallSonarEmitter, and BallDeathHandler.
-    /// Wire all [SerializeField] references in the Inspector.
-    /// </summary>
     [RequireComponent(typeof(Rigidbody2D))]
     [RequireComponent(typeof(CircleCollider2D))]
     public sealed class BallPhysicsResponder : MonoBehaviour
@@ -38,6 +40,8 @@ namespace EchoLine.Gameplay
         // ─────────────────────────────────────────────────────────────
 
         [Header("Config")]
+        [Tooltip("ScriptableObject containing all physics tuning values. " +
+                 "Used here exclusively for maxBallSpeed.")]
         [SerializeField] private GameConfig _config;
 
         [Space(10)]
@@ -64,17 +68,17 @@ namespace EchoLine.Gameplay
         //  Component cache
         // ─────────────────────────────────────────────────────────────
 
-        private Rigidbody2D   _rb;
-        private CircleCollider2D _collider;
-        private PhysicsMaterial2D _material;
+        // Cached only for EnforceMaxSpeed — BallLauncher owns all write
+        // authority over this Rigidbody2D; this script reads velocity only.
+        [SerializeField] private Rigidbody2D _rb;
 
         // ─────────────────────────────────────────────────────────────
         //  State
         // ─────────────────────────────────────────────────────────────
 
         /// <summary>
-        /// Set to true by BallLauncher.Launch() via SetLive().
-        /// All collision responses are gated behind this flag.
+        /// Driven by BallLauncher via SetLive().
+        /// All collision responses and speed capping are gated behind this flag.
         /// </summary>
         private bool _isLive;
 
@@ -84,19 +88,16 @@ namespace EchoLine.Gameplay
 
         private void Awake()
         {
-            // Cache components
-            _rb       = GetComponent<Rigidbody2D>();
-            _collider = GetComponent<CircleCollider2D>();
+            _rb = GetComponent<Rigidbody2D>();
 
             ValidateConfig();
-            ApplyConfigToPhysics();
             CacheLayerIndices();
         }
 
         private void FixedUpdate()
         {
             if (!_isLive) return;
-            EnforceMaxSpeed();
+            //EnforceMaxSpeed();
         }
 
         // ─────────────────────────────────────────────────────────────
@@ -104,8 +105,9 @@ namespace EchoLine.Gameplay
         // ─────────────────────────────────────────────────────────────
 
         /// <summary>
-        /// Called by BallLauncher immediately before applying the launch impulse.
-        /// Enables collision response processing.
+        /// Called by BallLauncher immediately before unfreezing the Rigidbody2D
+        /// on launch, and immediately before clearing velocity on reset.
+        /// Enables or disables collision response and speed capping.
         /// </summary>
         public void SetLive(bool live) => _isLive = live;
 
@@ -147,10 +149,9 @@ namespace EchoLine.Gameplay
 
         private void EnforceMaxSpeed()
         {
-            // [ADD TO GameConfig] maxBallSpeed field (suggested default: 18f)
             // Guards against energy accumulation across rapid successive bounces
             // which can cause the ball to tunnel through thin geometry.
-            float max = _config.maxBallSpeed;
+            float max = _config.MaxBallSpeed;
             if (_rb.linearVelocity.sqrMagnitude > max * max)
                 _rb.linearVelocity = _rb.linearVelocity.normalized * max;
         }
@@ -158,38 +159,6 @@ namespace EchoLine.Gameplay
         // ─────────────────────────────────────────────────────────────
         //  Startup helpers
         // ─────────────────────────────────────────────────────────────
-
-        /// <summary>
-        /// Writes GameConfig values onto the Rigidbody2D and its PhysicsMaterial2D.
-        /// BallLauncher owns the Rigidbody2D after launch — this is the only
-        /// place BallPhysicsResponder touches it.
-        /// </summary>
-        private void ApplyConfigToPhysics()
-        {
-            _rb.gravityScale    = _config.GravityScale;
-            _rb.linearDamping   = _config.BallDrag;
-            _rb.angularDamping  = _config.AngularDrag;
-
-            // PhysicsMaterial2D drives bounciness. Create one at runtime if the
-            // collider doesn't already have a shared material assigned.
-            if (_collider.sharedMaterial == null)
-            {
-                _material = new PhysicsMaterial2D("Ball_Runtime")
-                {
-                    bounciness = _config.Bounciness,
-                    friction   = 0f   // friction handled by wall/line materials
-                };
-                _collider.sharedMaterial = _material;
-            }
-            else
-            {
-                // Mutate the existing material so the asset stays the source of truth
-                _material = _collider.sharedMaterial;
-                _material.bounciness = _config.Bounciness;
-            }
-
-            _collider.radius = _config.BallRadius;
-        }
 
         private void CacheLayerIndices()
         {
@@ -219,18 +188,6 @@ namespace EchoLine.Gameplay
                 Debug.LogWarning("[BallPhysicsResponder] GameConfig contains out-of-range values. " +
                                  "Check the asset in the Inspector.", this);
 #endif
-        }
-
-        // ─────────────────────────────────────────────────────────────
-        //  Cleanup
-        // ─────────────────────────────────────────────────────────────
-
-        private void OnDestroy()
-        {
-            // Destroy the runtime material if we created it — avoids a
-            // memory leak in long play sessions or frequent level reloads.
-            if (_material != null && _material.name == "Ball_Runtime")
-                Destroy(_material);
         }
     }
 }
