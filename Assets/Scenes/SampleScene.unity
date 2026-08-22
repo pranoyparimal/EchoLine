@@ -546,6 +546,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 2637166135748140682, guid: c3f1dc897f5651a4e988638598fae52f, type: 3}
+      propertyPath: _minEmissionRate
+      value: 10
+      objectReference: {fileID: 0}
     - target: {fileID: 3682003116790377645, guid: c3f1dc897f5651a4e988638598fae52f, type: 3}
       propertyPath: m_Color.b
       value: 0.9803922
@@ -601,6 +605,14 @@ PrefabInstance:
     - target: {fileID: 7563832133395941330, guid: c3f1dc897f5651a4e988638598fae52f, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 8202327777176153149, guid: c3f1dc897f5651a4e988638598fae52f, type: 3}
+      propertyPath: InitialModule.startSize.scalar
+      value: 0.1
+      objectReference: {fileID: 0}
+    - target: {fileID: 8202327777176153149, guid: c3f1dc897f5651a4e988638598fae52f, type: 3}
+      propertyPath: InitialModule.startSize.minScalar
+      value: 0.06
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []

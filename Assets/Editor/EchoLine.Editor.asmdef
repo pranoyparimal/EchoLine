@@ -2,7 +2,8 @@
     "name": "EchoLine.Editor",
     "references": [
         "EchoLine.Core",
-        "EchoLine.Utilities"
+        "EchoLine.Utilities",
+        "EchoLine.Gameplay"
     ],
     "includePlatforms": [
         "Editor"
